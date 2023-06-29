@@ -1,0 +1,25 @@
+version: "3"
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: ./api/Dockerfile
+    volumes:
+      - /data/data:/api/data
+      - /data/model:/api/models
+    environment:
+      DATA_PATH: '/code/data'
+      MODEL_PATH: '/code/models'
+    restart: always
+    ports:
+      - "8000:8000"
+  dashboard:
+    build: 
+      context: .
+      dockerfile: ./dashboard/Dockerfile
+    environment:
+      URL_API: "http://api:8000/"
+    depends_on:
+      - api
+    ports:
+      - "8501:8501"
