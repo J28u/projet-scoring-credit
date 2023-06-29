@@ -4,9 +4,6 @@ services:
     build: 
       context: .
       dockerfile: ./api/Dockerfile
-    volumes:
-      - /data/data:/api/data
-      - /data/model:/api/models
     environment:
       DATA_PATH: '/code/data'
       MODEL_PATH: '/code/models'
