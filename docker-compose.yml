@@ -9,13 +9,13 @@ services:
       MODEL_PATH: '/code/models'
     restart: always
     ports:
-      - "8000:8000"
+      - "80:80"
   dashboard:
     build: 
       context: .
       dockerfile: ./dashboard/Dockerfile
     environment:
-      URL_API: "http://api:8000/"
+      URL_API: "http://api:80/"
     depends_on:
       - api
     ports:
