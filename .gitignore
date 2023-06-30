@@ -1,0 +1,4 @@
+.idea/
+api/app/__pycache__/
+api/app/logs.log
+
