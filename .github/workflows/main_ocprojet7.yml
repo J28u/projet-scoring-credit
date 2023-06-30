@@ -31,7 +31,7 @@ jobs:
       with:
         push: true
         tags: ocprojectscontainerregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_8db711a18d71449fadf411e6067a46e8 }}/oc-projet7:${{ github.sha }}
-        file: ./Dockerfile
+        file: ./docker-compose.yml
 
   deploy:
     runs-on: ubuntu-latest
