@@ -1,3 +1,18 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:a3c99d1c20ee9449fcc1170bf05529af767ac221287156ee943d60d1d41dabe3
-size 269
+dill==0.3.6
+fastapi==0.96.0
+matplotlib==3.7.1
+more_itertools==9.1.0
+numpy==1.24.3
+pandas==2.0.2
+plotly==5.15.0
+Requests==2.31.0
+seaborn==0.12.2
+shap==0.41.0
+pyarrow==12.0.0
+streamlit==1.23.1
+uvicorn==0.22.0
+imbalanced-learn==0.10.1
+lightgbm==3.3.5
+scikit-learn==1.2.1
+
+
