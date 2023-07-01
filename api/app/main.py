@@ -114,6 +114,7 @@ def predict_default(client_id: int):
         return {'prediction': prediction, 'proba_default': client_default_proba}
     except BaseException as e:
         my_logger.error('Error while predicting client default proba: ' + str(e))
+        return {'prediction': "error", 'proba_default': 0}
 
 
 @app.get('/predict_default_all_clients')
@@ -126,6 +127,7 @@ def predict_default_all(client_ids: list[int] = Query(...)):
         return {'proba_default': client_default_proba.tolist()}
     except BaseException as e:
         my_logger.error('Error while trying to predict dafault proba for all clients: ' + str(e))
+        return {'proba_default': []}
 
 
 @app.get('/numeric_features_list')
@@ -135,6 +137,8 @@ def get_numeric_features():
         return {'numeric_features': numeric_features.tolist()}
     except BaseException as e:
         my_logger.error('Error while trying to retrieve numeric features as a list: ' + str(e))
+        print('Error while trying to retrieve numeric features as a list: ' + str(e))
+        return {'numeric_features': []}
 
 
 @app.get('/shap_values_default')
