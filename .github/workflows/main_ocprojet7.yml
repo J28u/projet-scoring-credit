@@ -30,13 +30,13 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: ocprojectscontainerregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_8db711a18d71449fadf411e6067a46e8 }}/oc-projet7-api:${{ github.sha }}
+        tags: ocprojectscontainerregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_8db711a18d71449fadf411e6067a46e8 }}/oc-projet7-api:${{ latest }}
         file: ./api/Dockerfile
         
     - name: Build and push container dashboard image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: ocprojectscontainerregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_8db711a18d71449fadf411e6067a46e8 }}/oc-projet7-dashboard:${{ github.sha }}
+        tags: ocprojectscontainerregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_8db711a18d71449fadf411e6067a46e8 }}/oc-projet7-dashboard:${{ latest }}
         file: ./dashboard/Dockerfile
 
