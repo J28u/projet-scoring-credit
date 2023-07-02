@@ -43,7 +43,8 @@ def load_models():
     global nearest_neighbors
     # my_logger.info('start loading models')
     print('start loading models')
-    print('dir: ' + os.listdir())
+    print('dir: ') 
+    print(os.listdir())
     try:
         classifier = dill.load(open(MODEL_PATH + "/classifier.pkl", "rb"))
         nearest_neighbors = dill.load(open(MODEL_PATH + "/nearest_neighbors.pkl", "rb"))
