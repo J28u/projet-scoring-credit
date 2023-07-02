@@ -1,0 +1,45 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and push docker image to Azure Container Registry - ocprojet7
+
+on:
+  push:
+    branches:
+      - test
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        lfs: true
+    - run: git lfs pull
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to registry
+      uses: docker/login-action@v2
+      with:
+        registry: https://ocprojectscontainerregistry.azurecr.io/
+        username: ${{ secrets.AzureAppService_ContainerUsername_8db711a18d71449fadf411e6067a46e8 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_0493e4f6d6af47d5bd701225379927ce }}
+
+    - name: Build and push container api image to registry
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: ocprojectscontainerregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_8db711a18d71449fadf411e6067a46e8 }}/oc-projet7-api:latest
+        file: ./api/Dockerfile
+        
+    - name: Build and push container dashboard image to registry
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: ocprojectscontainerregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_8db711a18d71449fadf411e6067a46e8 }}/oc-projet7-dashboard:latest
+        file: ./dashboard/Dockerfile
+
