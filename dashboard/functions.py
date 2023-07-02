@@ -1,11 +1,11 @@
 import os
 import datetime
 from datetime import datetime
+from warnings import filterwarnings
 import streamlit as st
 import pandas as pd
 import numpy as np
 import requests
-import shap
 import json
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -13,6 +13,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import more_itertools as mit
 
+filterwarnings("ignore", message=".*The 'nopython' keyword.*")
+import shap
 
 URL_API = os.environ.get('URL_API')
 

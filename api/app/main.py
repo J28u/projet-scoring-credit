@@ -214,5 +214,5 @@ def get_nearest_neighbors_ids(client_id: int, n_neighbors: int):
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='127.0.0.1', port=8000)
+    uvicorn.run(app, host='0.0.0.0', port=8000)
 # uvicorn main:app --reload
