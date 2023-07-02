@@ -4,15 +4,16 @@ import dill
 import pandas as pd
 import os
 import json
+import uvicorn
+from fastapi import FastAPI, Response
+from fastapi.responses import FileResponse
+from fastapi.params import Query
 
 filterwarnings("ignore", message=".*The 'nopython' keyword.*")
 simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
 import shap
-import uvicorn
-from fastapi import FastAPI, Response
-from fastapi.responses import FileResponse
-from fastapi.params import Query
+
 # import logging
 
 __main__.pd = pd
@@ -28,7 +29,6 @@ app = FastAPI(title='DefaultRiskApp',
 
 DATA_PATH = os.environ.get('DATA_PATH')
 MODEL_PATH = os.environ.get('MODEL_PATH')
-
 
 classifier = None
 nearest_neighbors = None
@@ -78,6 +78,7 @@ def check_client_in_database(client_id: int):
         print("Error while checking whether client is in file or not :" + str(e))
         # my_logger.error("Error while checking whether client is in file or not :" + str(e))
         return {'check': False}
+
 
 @app.get('/threshold')
 def get_default_threshold():
@@ -196,7 +197,7 @@ def get_client_ids():
         return {"ids": ids_list}
     except BaseException as e:
         print('Error while trying to retrieve client ids list ' + str(e))
-        return {"ids":[]}
+        return {"ids": []}
 
 
 @app.get('/nearest_neighbors_ids')
