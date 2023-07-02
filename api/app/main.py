@@ -27,7 +27,6 @@ app = FastAPI(title='DefaultRiskApp',
 # my_logger.setLevel(logging.DEBUG)
 # logging.basicConfig(level=logging.DEBUG, filename='logs.log')
 
-print(os.listdir())
 DATA_PATH = os.environ.get('DATA_PATH')
 MODEL_PATH = os.environ.get('MODEL_PATH')
 
@@ -44,6 +43,7 @@ def load_models():
     global nearest_neighbors
     # my_logger.info('start loading models')
     print('start loading models')
+    print('dir: ' + os.listdir())
     try:
         classifier = dill.load(open(MODEL_PATH + "/classifier.pkl", "rb"))
         nearest_neighbors = dill.load(open(MODEL_PATH + "/nearest_neighbors.pkl", "rb"))
