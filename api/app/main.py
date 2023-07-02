@@ -127,12 +127,14 @@ def predict_default(client_id: int):
 @app.get('/predict_default_all_clients')
 def predict_default_all(client_ids: list[int] = Query(...)):
     try:
+        print('try retrieving clients proba')
         client_info = client_database.loc[client_ids]
         client_proba = classifier.predict_proba(client_info)
         client_default_proba = client_proba[:, 1]
 
         return {'proba_default': client_default_proba.tolist()}
     except BaseException as e:
+        print('Error while trying to predict dafault proba for all clients: ' + str(e))
         my_logger.error('Error while trying to predict dafault proba for all clients: ' + str(e))
         return {'proba_default': []}
 
