@@ -27,6 +27,7 @@ app = FastAPI(title='DefaultRiskApp',
 # my_logger.setLevel(logging.DEBUG)
 # logging.basicConfig(level=logging.DEBUG, filename='logs.log')
 
+print(os.listdir())
 DATA_PATH = os.environ.get('DATA_PATH')
 MODEL_PATH = os.environ.get('MODEL_PATH')
 
@@ -84,7 +85,7 @@ def check_client_in_database(client_id: int):
 def get_default_threshold():
     try:
         thresh = best_params.loc[best_params['Param'] == 'thresh', 'Best Param'].values[0]
-        print('thresh : ' + str(thresh))
+        # print('thresh : ' + str(thresh))
         return {"threshold": thresh}
     except BaseException as e:
         print("Error while reading threshold in Best_Params.pkl file :" + str(e))
@@ -154,7 +155,7 @@ def predict_default_all(client_ids: list[int] = Query(...)):
 def get_numeric_features():
     try:
         numeric_features = classifier[0].named_transformers_['pipeline-3'][0].feature_names_in_
-        print('numeric features : ' + str(len(numeric_features.tolist())))
+        # print('numeric features : ' + str(len(numeric_features.tolist())))
         return {'numeric_features': numeric_features.tolist()}
     except BaseException as e:
         # my_logger.error('Error while trying to retrieve numeric features as a list: ' + str(e))
@@ -193,7 +194,7 @@ def get_shap_values(client_id: int):
 def get_client_ids():
     try: 
         ids_list = client_database.index.to_list()
-        print('client ids : ' + str(len(ids_list)))
+        # print('client ids : ' + str(len(ids_list)))
         return {"ids": ids_list}
     except BaseException as e:
         print('Error while trying to retrieve client ids list ' + str(e))
