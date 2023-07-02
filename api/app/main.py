@@ -170,7 +170,7 @@ def get_shap_values(client_id: int):
     except BaseException as e:
         my_logger.error('Error while trying to compute shap values: ' + str(e))
         return {"shap_values": [],
-                "expected_values": 0],
+                "expected_values": 0,
                 "features": []}
 
 
