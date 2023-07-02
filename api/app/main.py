@@ -45,6 +45,9 @@ def load_models():
     print('start loading models')
     print('dir: ') 
     print(os.listdir())
+    print(os.getcwd())
+    print(os.listdir('/models'))
+    print(os.listdir('/data'))
     try:
         classifier = dill.load(open(MODEL_PATH + "/classifier.pkl", "rb"))
         nearest_neighbors = dill.load(open(MODEL_PATH + "/nearest_neighbors.pkl", "rb"))
