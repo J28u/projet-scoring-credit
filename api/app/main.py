@@ -51,7 +51,7 @@ def load_models():
     print(os.listdir('/code/data'))
     print(os.listdir('/code/app'))
     try:
-        classifier = dill.load(open(${WEBAPP_STORAGE_HOME} + "models/classifier.pkl", "rb"))
+        classifier = dill.load(open( MODEL_PATH + "/classifier.pkl", "rb"))
         nearest_neighbors = dill.load(open(MODEL_PATH + "/nearest_neighbors.pkl", "rb"))
         print('Models loaded')
         # my_logger.info('Models loaded')
