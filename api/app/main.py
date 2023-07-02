@@ -39,14 +39,14 @@ def load_models():
     global classifier
     global nearest_neighbors
     # my_logger.info('start loading models')
-    print('start loading models')
-    try:
-        classifier = dill.load(open(MODEL_PATH + "/classifier.pkl", "rb"))
-        nearest_neighbors = dill.load(open(MODEL_PATH + "/nearest_neighbors.pkl", "rb"))
-        print('Models loaded')
+    # print('start loading models')
+    # try:
+    classifier = dill.load(open(MODEL_PATH + "/classifier.pkl", "rb"))
+    nearest_neighbors = dill.load(open(MODEL_PATH + "/nearest_neighbors.pkl", "rb"))
+        # print('Models loaded')
         # my_logger.info('Models loaded')
-    except BaseException as e:
-        print("Error while trying to load models : " + str(e))
+    # except BaseException as e:
+        # print("Error while trying to load models : " + str(e))
         # my_logger.error("Error while trying to load models : " + str(e))
         
 
@@ -55,14 +55,14 @@ def load_data():
     global client_database
     global best_params
     # my_logger.info('start loading data')
-    print('start loading data')
-    try:
-        client_database = pd.read_pickle(DATA_PATH + '/X_sample.pkl')
-        best_params = pd.read_pickle(DATA_PATH + '/BestParams.pkl')
+    # print('start loading data')
+    # try:
+    client_database = pd.read_pickle(DATA_PATH + '/X_sample.pkl')
+    best_params = pd.read_pickle(DATA_PATH + '/BestParams.pkl')
         # my_logger.info('Data loaded')
-        print('Data loaded')
-    except BaseException as e:
-        print("Error while trying to load models : " + str(e))
+        # print('Data loaded')
+    # except BaseException as e:
+        # print("Error while trying to load models : " + str(e))
         # my_logger.error("Error while trying to load models : " + str(e))
 
 
