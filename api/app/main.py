@@ -1,15 +1,15 @@
 import __main__
 from warnings import simplefilter, filterwarnings
+import dill
+import pandas as pd
+import os
+import json
 
 filterwarnings("ignore", message=".*The 'nopython' keyword.*")
 simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
-import dill
-import pandas as pd
 import shap
 import uvicorn
-import json
-import os
 from fastapi import FastAPI, Response
 from fastapi.responses import FileResponse
 from fastapi.params import Query
