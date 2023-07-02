@@ -72,8 +72,9 @@ def check_client_in_database(client_id: int):
         check = client_id in client_database.index
         return {'check': check}
     except BaseException as e:
+        print("Error while checking whether client is in file or not :" + str(e))
         my_logger.error("Error while checking whether client is in file or not :" + str(e))
-
+        return {'check': False}
 
 @app.get('/threshold')
 def get_default_threshold():
@@ -81,6 +82,7 @@ def get_default_threshold():
         thresh = best_params.loc[best_params['Param'] == 'thresh', 'Best Param'].values[0]
         return {"threshold": thresh}
     except BaseException as e:
+        print("Error while reading threshold in Best_Params.pkl file :" + str(e))
         my_logger.error("Error while reading threshold in Best_Params.pkl file :" + str(e))
         return {"threshold": 0}
 
@@ -92,6 +94,7 @@ def get_client_info(client_id: int):
 
         return Response(client_info.to_json(orient='records'), media_type="application/json")
     except BaseException as e:
+        print('Error while retrieving client info: ' + str(e))
         my_logger.error('Error while retrieving client info: ' + str(e))
 
 
@@ -101,6 +104,7 @@ def download_client_database():
     if os.path.exists(file_path):
         return FileResponse(path=file_path, filename=file_path, media_type='application/pickle')
     my_logger.error('Client database file not found')
+    print('Client database file not found: ' + file_path)
     return {"message": file_path + " file not found"}
 
 
@@ -120,6 +124,7 @@ def predict_default(client_id: int):
 
         return {'prediction': prediction, 'proba_default': client_default_proba}
     except BaseException as e:
+        print('Error while predicting client default proba: ' + str(e))
         my_logger.error('Error while predicting client default proba: ' + str(e))
         return {'prediction': "error", 'proba_default': 0}
 
@@ -127,7 +132,6 @@ def predict_default(client_id: int):
 @app.get('/predict_default_all_clients')
 def predict_default_all(client_ids: list[int] = Query(...)):
     try:
-        print('try retrieving clients proba')
         client_info = client_database.loc[client_ids]
         client_proba = classifier.predict_proba(client_info)
         client_default_proba = client_proba[:, 1]
@@ -170,6 +174,7 @@ def get_shap_values(client_id: int):
                 "expected_values": expected_values[1],
                 "features": features}
     except BaseException as e:
+        print('Error while trying to compute shap values: ' + str(e))
         my_logger.error('Error while trying to compute shap values: ' + str(e))
         return {"shap_values": [],
                 "expected_values": 0,
@@ -178,7 +183,12 @@ def get_shap_values(client_id: int):
 
 @app.get('/client_ids')
 def get_client_ids():
-    return {"ids": client_database.index.to_list()}
+    try: 
+        ids_list = client_database.index.to_list()
+        return {"ids": ids_list}
+    except BaseException as e:
+        print('Error while trying to retrieve client ids list ' + str(e))
+        return {"ids":[]}
 
 
 @app.get('/nearest_neighbors_ids')
@@ -190,6 +200,7 @@ def get_nearest_neighbors_ids(client_id: int, n_neighbors: int):
 
         return {"nearest_neighbors_ids": neighbors_ids}
     except BaseException as e:
+        print('Error while trying to find nearest_neighbors: ' + str(e))
         my_logger.error('Error while trying to find nearest_neighbors: ' + str(e))
         return {"nearest_neighbors_ids": []}
 
