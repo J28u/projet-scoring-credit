@@ -80,6 +80,7 @@ def check_client_in_database(client_id: int):
 def get_default_threshold():
     try:
         thresh = best_params.loc[best_params['Param'] == 'thresh', 'Best Param'].values[0]
+        print('thresh : ' + str(thresh))
         return {"threshold": thresh}
     except BaseException as e:
         print("Error while reading threshold in Best_Params.pkl file :" + str(e))
@@ -91,7 +92,6 @@ def get_default_threshold():
 def get_client_info(client_id: int):
     try:
         client_info = client_database.loc[[client_id]]
-
         return Response(client_info.to_json(orient='records'), media_type="application/json")
     except BaseException as e:
         print('Error while retrieving client info: ' + str(e))
@@ -100,8 +100,10 @@ def get_client_info(client_id: int):
 
 @app.get('/download_database')
 def download_client_database():
+    print('start download')
     file_path = DATA_PATH + '/X_sample.pkl'
     if os.path.exists(file_path):
+        print('file exists')
         return FileResponse(path=file_path, filename=file_path, media_type='application/pickle')
     my_logger.error('Client database file not found')
     print('Client database file not found: ' + file_path)
@@ -131,6 +133,7 @@ def predict_default(client_id: int):
 
 @app.get('/predict_default_all_clients')
 def predict_default_all(client_ids: list[int] = Query(...)):
+    print('start predicting several client defaults')
     try:
         client_info = client_database.loc[client_ids]
         client_proba = classifier.predict_proba(client_info)
@@ -147,6 +150,7 @@ def predict_default_all(client_ids: list[int] = Query(...)):
 def get_numeric_features():
     try:
         numeric_features = classifier[0].named_transformers_['pipeline-3'][0].feature_names_in_
+        print('numeric features : ' + str(len(numeric_features.tolist())))
         return {'numeric_features': numeric_features.tolist()}
     except BaseException as e:
         my_logger.error('Error while trying to retrieve numeric features as a list: ' + str(e))
@@ -185,6 +189,7 @@ def get_shap_values(client_id: int):
 def get_client_ids():
     try: 
         ids_list = client_database.index.to_list()
+        print('client ids : ' + str(len(ids_list)))
         return {"ids": ids_list}
     except BaseException as e:
         print('Error while trying to retrieve client ids list ' + str(e))
