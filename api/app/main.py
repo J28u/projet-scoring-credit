@@ -1,5 +1,9 @@
 import __main__
-from warnings import simplefilter
+from warnings import simplefilter, filterwarnings
+
+filterwarnings("ignore", message=".*The 'nopython' keyword.*")
+simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
+
 import dill
 import pandas as pd
 import shap
@@ -9,7 +13,7 @@ import os
 from fastapi import FastAPI, Response
 from fastapi.responses import FileResponse
 from fastapi.params import Query
-import logging
+# import logging
 
 __main__.pd = pd
 
@@ -18,14 +22,13 @@ app = FastAPI(title='DefaultRiskApp',
               projet 7 du parcours Datascientist proposé par OpenClassrooms""",
               version="0.1")
 
-my_logger = logging.getLogger()
-my_logger.setLevel(logging.DEBUG)
-logging.basicConfig(level=logging.DEBUG, filename='logs.log')
+# my_logger = logging.getLogger()
+# my_logger.setLevel(logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG, filename='logs.log')
 
 DATA_PATH = os.environ.get('DATA_PATH')
 MODEL_PATH = os.environ.get('MODEL_PATH')
 
-simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
 classifier = None
 nearest_neighbors = None
@@ -38,32 +41,32 @@ best_params = pd.DataFrame()
 def load_models():
     global classifier
     global nearest_neighbors
-    my_logger.info('start loading models')
+    # my_logger.info('start loading models')
     print('start loading models')
     try:
         classifier = dill.load(open(MODEL_PATH + "/classifier.pkl", "rb"))
         nearest_neighbors = dill.load(open(MODEL_PATH + "/nearest_neighbors.pkl", "rb"))
         print('Models loaded')
-        my_logger.info('Models loaded')
+        # my_logger.info('Models loaded')
     except BaseException as e:
         print("Error while trying to load models : " + str(e))
-        my_logger.error("Error while trying to load models : " + str(e))
+        # my_logger.error("Error while trying to load models : " + str(e))
         
 
 @app.on_event("startup")
 def load_data():
     global client_database
     global best_params
-    my_logger.info('start loading data')
+    # my_logger.info('start loading data')
     print('start loading data')
     try:
         client_database = pd.read_pickle(DATA_PATH + '/X_sample.pkl')
         best_params = pd.read_pickle(DATA_PATH + '/BestParams.pkl')
-        my_logger.info('Data loaded')
+        # my_logger.info('Data loaded')
         print('Data loaded')
     except BaseException as e:
         print("Error while trying to load models : " + str(e))
-        my_logger.error("Error while trying to load models : " + str(e))
+        # my_logger.error("Error while trying to load models : " + str(e))
 
 
 @app.get('/in_database')
@@ -73,7 +76,7 @@ def check_client_in_database(client_id: int):
         return {'check': check}
     except BaseException as e:
         print("Error while checking whether client is in file or not :" + str(e))
-        my_logger.error("Error while checking whether client is in file or not :" + str(e))
+        # my_logger.error("Error while checking whether client is in file or not :" + str(e))
         return {'check': False}
 
 @app.get('/threshold')
@@ -84,7 +87,7 @@ def get_default_threshold():
         return {"threshold": thresh}
     except BaseException as e:
         print("Error while reading threshold in Best_Params.pkl file :" + str(e))
-        my_logger.error("Error while reading threshold in Best_Params.pkl file :" + str(e))
+        # my_logger.error("Error while reading threshold in Best_Params.pkl file :" + str(e))
         return {"threshold": 0}
 
 
@@ -95,7 +98,7 @@ def get_client_info(client_id: int):
         return Response(client_info.to_json(orient='records'), media_type="application/json")
     except BaseException as e:
         print('Error while retrieving client info: ' + str(e))
-        my_logger.error('Error while retrieving client info: ' + str(e))
+        # my_logger.error('Error while retrieving client info: ' + str(e))
 
 
 @app.get('/download_database')
@@ -105,7 +108,7 @@ def download_client_database():
     if os.path.exists(file_path):
         print('file exists')
         return FileResponse(path=file_path, filename=file_path, media_type='application/pickle')
-    my_logger.error('Client database file not found')
+    # my_logger.error('Client database file not found')
     print('Client database file not found: ' + file_path)
     return {"message": file_path + " file not found"}
 
@@ -127,7 +130,7 @@ def predict_default(client_id: int):
         return {'prediction': prediction, 'proba_default': client_default_proba}
     except BaseException as e:
         print('Error while predicting client default proba: ' + str(e))
-        my_logger.error('Error while predicting client default proba: ' + str(e))
+        # my_logger.error('Error while predicting client default proba: ' + str(e))
         return {'prediction': "error", 'proba_default': 0}
 
 
@@ -142,7 +145,7 @@ def predict_default_all(client_ids: list[int] = Query(...)):
         return {'proba_default': client_default_proba.tolist()}
     except BaseException as e:
         print('Error while trying to predict dafault proba for all clients: ' + str(e))
-        my_logger.error('Error while trying to predict dafault proba for all clients: ' + str(e))
+        # my_logger.error('Error while trying to predict dafault proba for all clients: ' + str(e))
         return {'proba_default': []}
 
 
@@ -153,7 +156,7 @@ def get_numeric_features():
         print('numeric features : ' + str(len(numeric_features.tolist())))
         return {'numeric_features': numeric_features.tolist()}
     except BaseException as e:
-        my_logger.error('Error while trying to retrieve numeric features as a list: ' + str(e))
+        # my_logger.error('Error while trying to retrieve numeric features as a list: ' + str(e))
         print('Error while trying to retrieve numeric features as a list: ' + str(e))
         return {'numeric_features': []}
 
@@ -179,7 +182,7 @@ def get_shap_values(client_id: int):
                 "features": features}
     except BaseException as e:
         print('Error while trying to compute shap values: ' + str(e))
-        my_logger.error('Error while trying to compute shap values: ' + str(e))
+        # my_logger.error('Error while trying to compute shap values: ' + str(e))
         return {"shap_values": [],
                 "expected_values": 0,
                 "features": []}
@@ -206,7 +209,7 @@ def get_nearest_neighbors_ids(client_id: int, n_neighbors: int):
         return {"nearest_neighbors_ids": neighbors_ids}
     except BaseException as e:
         print('Error while trying to find nearest_neighbors: ' + str(e))
-        my_logger.error('Error while trying to find nearest_neighbors: ' + str(e))
+        # my_logger.error('Error while trying to find nearest_neighbors: ' + str(e))
         return {"nearest_neighbors_ids": []}
 
 
