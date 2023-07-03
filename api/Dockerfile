@@ -10,6 +10,6 @@ COPY ./api/data /code/data
 COPY ./api/models /code/models
 COPY ./api/app /code/app
 
-EXPOSE 80
+EXPOSE 6379
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "6379"]
