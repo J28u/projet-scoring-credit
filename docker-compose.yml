@@ -1,22 +1,28 @@
 version: "3"
 services:
-  api:
-    build: 
-      context: .
-      dockerfile: ./api/Dockerfile
+  api-back:
+    image: ocprojectscontainerregistry.azurecr.io/ocprojectscontainerregistry/oc-projet7-api:latest
     environment:
       DATA_PATH: '/code/data'
       MODEL_PATH: '/code/models'
-    restart: always
+      ALLOW_EMPTY_PASSWORD: 'yes'
+    ports:
+      - "8000:8000"
+    restart: "no"
+    volumes:
+      - myapi-data:/code/data
+      - myapi-models:/code/models
+  dashboard-front:
+    image: ocprojectscontainerregistry.azurecr.io/ocprojectscontainerregistry/oc-projet7-dashboard:latest
+    environment:
+      URL_API: "http://api-back:8000/"
+    depends_on:
+      - api-back
     ports:
       - "80:80"
-  dashboard:
-    build: 
-      context: .
-      dockerfile: ./dashboard/Dockerfile
-    environment:
-      URL_API: "http://api:80/"
-    depends_on:
-      - api
-    ports:
-      - "8501:8501"
+
+volumes:
+  myapi-data:
+    driver: local
+  myapi-models:
+    driver: local
