@@ -191,6 +191,7 @@ def get_shap_values(client_id: int):
 def get_client_ids():
     try: 
         ids_list = client_database.index.to_list()
+        print(len(ids_list))
         return {"ids": ids_list}
     except BaseException as e:
         print('Error while trying to retrieve client ids list ' + str(e))
