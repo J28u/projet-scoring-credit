@@ -2,7 +2,6 @@ import __main__
 from warnings import simplefilter, filterwarnings
 import dill
 import pandas as pd
-import numpy as np
 import os
 import json
 import uvicorn
@@ -89,7 +88,7 @@ def get_default_threshold():
     except BaseException as e:
         print("Error while reading threshold in Best_Params.pkl file :" + str(e))
         my_logger.error("Error while reading threshold in Best_Params.pkl file :" + str(e))
-        return {"threshold": np.nan}
+        return {"threshold": 0}
 
 
 @app.get('/client_info')
@@ -132,7 +131,7 @@ def predict_default(client_id: int):
     except BaseException as e:
         print('Error while predicting client default proba: ' + str(e))
         my_logger.error('Error while predicting client default proba: ' + str(e))
-        return {'prediction': "error", 'proba_default': np.nan}
+        return {'prediction': "error", 'proba_default': 0}
 
 
 @app.get('/predict_default_all_clients')
@@ -184,7 +183,7 @@ def get_shap_values(client_id: int):
         print('Error while trying to compute shap values: ' + str(e))
         my_logger.error('Error while trying to compute shap values: ' + str(e))
         return {"shap_values": [],
-                "expected_values": np.nan,
+                "expected_values": 0,
                 "features": []}
 
 
