@@ -112,11 +112,11 @@ def get_client_default_proba(client_id: int):
 def get_all_clients_default_proba(client_ids: list[int]):
     print('start computing all clients proba')
     results = []
-    chunks = list(mit.chunked(client_ids, 1_000))
+    chunks = list(mit.chunked(client_ids, 500))
     for i, chunk in enumerate(chunks):
         print('chunk ' + str(i))
         params = {'client_ids': chunk}
-        response = requests.get(URL_API + 'predict_default_all_clients', params=params)
+        response = requests.get(URL_API + 'predict_default_all_clients', params=params, stream=True)
         store_request(datetime.now(), response, str({"client_id": "chunk " + str(i+1) + "/" + str(len(chunks))}),
                       "GET_predict_default_all_clients")
 
@@ -126,7 +126,7 @@ def get_all_clients_default_proba(client_ids: list[int]):
         results.extend(response.json()['proba_default'])
 
     return results
-
+    
 
 @st.cache_data
 def get_client_info(client_id: int):
