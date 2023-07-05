@@ -116,7 +116,7 @@ def get_all_clients_default_proba(client_ids: list[int]):
     for i, chunk in enumerate(chunks):
         print('chunk ' + str(i))
         params = {'client_ids': chunk}
-        response = requests.get(URL_API + 'predict_default_all_clients', params=params, stream=True)
+        response = requests.get(URL_API + 'predict_default_all_clients', params=params)
         store_request(datetime.now(), response, str({"client_id": "chunk " + str(i+1) + "/" + str(len(chunks))}),
                       "GET_predict_default_all_clients")
 
