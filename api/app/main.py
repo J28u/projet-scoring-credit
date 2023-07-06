@@ -96,9 +96,9 @@ class App:
                 my_logger.error('Error while retrieving client info: ' + str(e))
 
         @app.get('/download_database')
-        async def download_client_database():
+        async def download_client_database(file_name='/X_sample.pkl'):
             print('start download')
-            file_path = DATA_PATH + '/X_sample.pkl'
+            file_path = DATA_PATH + file_name
             if os.path.exists(file_path):
                 print('file exists')
                 return FileResponse(path=file_path, filename=file_path, media_type='application/pickle')
@@ -172,7 +172,7 @@ class App:
             except BaseException as e:
                 print('Error while trying to compute shap values: ' + str(e))
                 my_logger.error('Error while trying to compute shap values: ' + str(e))
-                return {"shap_values": [],
+                return {"shap_values": "[[]]",
                         "expected_values": 0,
                         "features": []}
 

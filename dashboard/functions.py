@@ -56,7 +56,7 @@ def get_all_client_info():
         raise Exception(
             "Request failed with status {}, {}".format(response.status_code, response.text))
             
-    if response.headers['content-type']=='application/json':
+    if response.headers['content-type'] == 'application/json':
         store_request(datetime.now(), response, "no params", "GET_download_database", response.json()['message'])
         client_dataset = pd.DataFrame()
         
@@ -81,7 +81,6 @@ def get_default_threshold():
 
 @st.cache_data
 def get_nearest_neighbors_ids(client_id: int, n_neighbors: int):
-    print(type(n_neighbors))
     params = {'client_id': client_id, 'n_neighbors': n_neighbors}
     response = requests.get(URL_API + 'nearest_neighbors_ids', params=params)
     store_request(datetime.now(), response, str(params), "GET_nearest_neighbors_ids")
@@ -112,7 +111,7 @@ def get_client_default_proba(client_id: int):
 def get_all_clients_default_proba(client_ids: list[int]):
     print('start computing all clients proba')
     results = []
-    chunks = list(mit.chunked(client_ids, 500))
+    chunks = list(mit.chunked(client_ids, 1_000))
     for i, chunk in enumerate(chunks):
         print('chunk ' + str(i))
         params = {'client_ids': chunk}
@@ -236,14 +235,19 @@ def build_gauge(color: str):
     return fig
 
 
-def build_scatter_plot(dataset: pd.DataFrame, x_var: str, y_var: str, colors='temps'):
+def build_scatter_plot(dataset: pd.DataFrame, x_var: str, y_var: str, colors='temps', with_hue=False):
     dataset['CLIENT_ID'] = dataset.index.tolist()
     dataset['CLIENT_TAG'] = 'other clients (n=' + str(dataset.shape[0]-1) + ')'
     dataset.loc[st.session_state.selected_client, 'CLIENT_TAG'] = 'selected client'
 
-    fig = px.scatter(dataset, x=x_var, y=y_var, color='DEFAULT_PROBA', symbol='CLIENT_TAG', opacity=.9,
-                     color_continuous_scale=colors,
-                     hover_data=['CLIENT_TAG', 'CLIENT_ID', 'DEFAULT_PROBA', x_var, y_var])
+    if with_hue:
+        fig = px.scatter(dataset, x=x_var, y=y_var, color='DEFAULT_PROBA', symbol='CLIENT_TAG', opacity=.9,
+                         color_continuous_scale=colors,
+                         hover_data=['CLIENT_TAG', 'CLIENT_ID', 'DEFAULT_PROBA', x_var, y_var])
+    else:
+        fig = px.scatter(dataset, x=x_var, y=y_var, symbol='CLIENT_TAG', opacity=.9,
+                         hover_data=['CLIENT_TAG', 'CLIENT_ID', x_var, y_var])
+
     fig.update_traces(marker=dict(size=20, line=dict(color='DarkSlateGrey', width=2), opacity=1),
                       selector=({"name": 'selected client'}))
     fig.data = (fig.data[1], fig.data[0])
@@ -270,12 +274,12 @@ def build_hist(dataset: pd.DataFrame, x_var: str, labels: dict, hue_var=None):
 
 
 def format_amount(amount: float):
-    if amount > 1_000_000:
-        formatted_amount = str(int(amount) / 1_000_000) + "M"
-    elif amount > 1_000:
-        formatted_amount = str(int(amount) / 1_000) + "k"
+    if amount >= 1_000_000:
+        formatted_amount = str(round(int(amount) / 1_000_000, 1)) + "M"
+    elif amount >= 1_000:
+        formatted_amount = str(round(int(amount) / 1_000, 1)) + "k"
     else:
-        formatted_amount = str(int(amount))
+        formatted_amount = str(int(round(amount, 0)))
 
     return formatted_amount
 
@@ -331,9 +335,15 @@ def reset_filter():
 
 
 def reload_scatter_plot():
+    with_hue = False
+    if st.session_state.dataset.shape[0] <= 5_000:
+        ids = st.session_state.dataset.index.to_list()
+        st.session_state.dataset['DEFAULT_PROBA'] = get_all_clients_default_proba(ids)
+        with_hue = True
     st.session_state.scatter = build_scatter_plot(st.session_state.dataset,
                                                   st.session_state.x_var,
-                                                  st.session_state.y_var)
+                                                  st.session_state.y_var,
+                                                  with_hue)
 
 
 @st.cache_data
@@ -346,9 +356,6 @@ def initialize_dashboard():
     st.session_state.dataset_original = get_all_client_info()
     st.session_state.dataset = st.session_state.dataset_original
     st.session_state.number_of_clients = len(st.session_state.ids)
-    if not st.session_state.dataset_original.empty:
-        st.session_state.dataset_original['DEFAULT_PROBA'] = get_all_clients_default_proba(st.session_state.ids)
-        # st.session_state.number_of_clients = st.session_state.dataset_original.shape[0]
 
 
 @st.cache_data

@@ -1,4 +1,11 @@
 .idea/
 api/app/__pycache__/
 api/app/logs.log
+dashboard/__pycache__/
+tests/api/__pycache__/
+tests/api/app/__pycache__/
+tests/dashboard/__pycache__/
+logs.log
+tests/__pycache__/
+
 
