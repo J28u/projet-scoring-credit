@@ -17,6 +17,7 @@ filterwarnings("ignore", message=".*The 'nopython' keyword.*")
 import shap
 
 URL_API = os.environ.get('URL_API')
+DATABASE_PATH = os.environ.get('DATABASE_PATH')
 
 
 def store_request(time, response, params: str, endpoint: str, result=np.nan):
@@ -343,7 +344,7 @@ def reload_scatter_plot():
     st.session_state.scatter = build_scatter_plot(st.session_state.dataset,
                                                   st.session_state.x_var,
                                                   st.session_state.y_var,
-                                                  with_hue)
+                                                  with_hue=with_hue)
 
 
 @st.cache_data
@@ -353,7 +354,7 @@ def initialize_dashboard():
     st.session_state.numeric_features = get_numeric_features()
     st.session_state.thresh_int = np.round(get_default_threshold() * 100).astype(int)
     st.session_state.thresh = str(st.session_state.thresh_int) + "%"
-    st.session_state.dataset_original = get_all_client_info()
+    st.session_state.dataset_original = pd.read_pickle(DATABASE_PATH + '/database.pkl')
     st.session_state.dataset = st.session_state.dataset_original
     st.session_state.number_of_clients = len(st.session_state.ids)
 
