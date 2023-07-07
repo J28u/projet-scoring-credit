@@ -1,9 +1,9 @@
 import streamlit as st
-from functions import load_client_info, filter_dataset, reload_scatter_plot, initialize_dashboard, \
-    build_gauge, reset_filter
-
 
 st.set_page_config(layout="wide", initial_sidebar_state='collapsed')
+
+from functions import load_client_info, filter_dataset, reload_scatter_plot, initialize_dashboard, \
+    build_gauge, reset_filter
 
 
 def main():
