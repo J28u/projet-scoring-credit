@@ -9,6 +9,7 @@ import logging
 from fastapi import FastAPI, Response
 from fastapi.responses import FileResponse
 from fastapi.params import Query
+import time
 
 filterwarnings("ignore", message=".*The 'nopython' keyword.*")
 simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
@@ -44,11 +45,13 @@ class App:
         def load_models():
             my_logger.info('start loading models')
             print('start loading models')
+            start = time.perf_counter()
             try:
                 self.classifier = dill.load(open(MODEL_PATH + "/classifier.pkl", "rb"))
                 self.nearest_neighbors = dill.load(open(MODEL_PATH + "/nearest_neighbors.pkl", "rb"))
                 print('Models loaded')
                 my_logger.info('Models loaded')
+                print("Models loaded in {:0.4f} seconds".format(time.perf_counter()- start))
             except BaseException as e:
                 print("Error while trying to load models : " + str(e))
                 my_logger.error("Error while trying to load models : " + str(e))
@@ -57,29 +60,35 @@ class App:
         def load_data():
             my_logger.info('start loading data')
             print('start loading data')
+            start = time.perf_counter()
             try:
                 self.client_database = pd.read_pickle(DATA_PATH + '/X_sample.pkl')
                 self.best_params = pd.read_pickle(DATA_PATH + '/BestParams.pkl')
                 my_logger.info('Data loaded')
-                print('Data loaded')
+                print("Data loaded in {:0.4f} seconds".format(time.perf_counter()- start))
             except BaseException as e:
                 print("Error while trying to load models : " + str(e))
                 my_logger.error("Error while trying to load models : " + str(e))
 
         @app.get('/in_database')
         async def check_client_in_database(client_id: int):
+            start = time.perf_counter()
             try:
                 check = client_id in self.client_database.index
+                print("check_client_in_database in {:0.4f} seconds".format(time.perf_counter()- start))
                 return {'check': check}
             except BaseException as e:
                 print("Error while checking whether client is in file or not :" + str(e))
                 my_logger.error("Error while checking whether client is in file or not :" + str(e))
+                print("check_client_in_database in {:0.4f} seconds".format(time.perf_counter()- start))
                 return {'check': False}
 
         @app.get('/threshold')
         async def get_default_threshold():
+            start = time.perf_counter()
             try:
                 thresh = self.best_params.loc[self.best_params['Param'] == 'thresh', 'Best Param'].values[0]
+                print("get_default_threshold in {:0.4f} seconds".format(time.perf_counter()- start))
                 return {"threshold": thresh}
             except BaseException as e:
                 print("Error while reading threshold in Best_Params.pkl file :" + str(e))
@@ -88,8 +97,10 @@ class App:
 
         @app.get('/client_info')
         async def get_client_info(client_id: int):
+            start = time.perf_counter()
             try:
                 client_info = self.client_database.loc[[client_id]]
+                print("get_client_info in {:0.4f} seconds".format(time.perf_counter()- start))
                 return Response(client_info.to_json(orient='records'), media_type="application/json")
             except BaseException as e:
                 print('Error while retrieving client info: ' + str(e))
@@ -108,6 +119,7 @@ class App:
 
         @app.get('/predict_default')
         async def predict_default(client_id: int):
+            start = time.perf_counter()
             try:
                 client_info = self.client_database.loc[[client_id]]
                 thresh = self.best_params.loc[self.best_params['Param'] == 'thresh', 'Best Param'].values[0]
@@ -119,7 +131,8 @@ class App:
                     prediction = "Crédit refusé"
                 else:
                     prediction = "Crédit accordé"
-
+                    
+                print("predict_default in {:0.4f} seconds".format(time.perf_counter()- start))
                 return {'prediction': prediction, 'proba_default': client_default_proba}
             except BaseException as e:
                 print('Error while predicting client default proba: ' + str(e))
@@ -129,11 +142,13 @@ class App:
         @app.get('/predict_default_all_clients')
         async def predict_default_all(client_ids: list[int] = Query(...)):
             print('start predicting several client defaults')
+            start = time.perf_counter()
             try:
                 client_info = self.client_database.loc[client_ids]
                 client_proba = self.classifier.predict_proba(client_info)
                 client_default_proba = client_proba[:, 1]
-
+                
+                print("predict_default_all in {:0.4f} seconds".format(time.perf_counter()- start))
                 return {'proba_default': client_default_proba.tolist()}
             except BaseException as e:
                 print('Error while trying to predict dafault proba for all clients: ' + str(e))
@@ -142,8 +157,10 @@ class App:
 
         @app.get('/numeric_features_list')
         async def get_numeric_features():
+            start = time.perf_counter()
             try:
                 numeric_features = self.classifier[0].named_transformers_['pipeline-3'][0].feature_names_in_
+                print("get_numeric_features in {:0.4f} seconds".format(time.perf_counter()- start))
                 return {'numeric_features': numeric_features.tolist()}
             except BaseException as e:
                 my_logger.error('Error while trying to retrieve numeric features as a list: ' + str(e))
@@ -152,6 +169,7 @@ class App:
 
         @app.get('/shap_values_default')
         async def get_shap_values(client_id: int):
+            start = time.perf_counter()
             try:
                 client_info = self.client_database.loc[[client_id]]
                 explainer = shap.TreeExplainer(self.classifier[-1], model_outpout='predict_proba')
@@ -166,6 +184,7 @@ class App:
                 shap_vals = explainer.shap_values(client_info_transformed)
                 expected_values = explainer.expected_value
 
+                print("get_shap_values in {:0.4f} seconds".format(time.perf_counter()- start))
                 return {"shap_values": json.dumps(shap_vals[1].tolist()),
                         "expected_values": expected_values[1],
                         "features": features}
@@ -178,9 +197,10 @@ class App:
 
         @app.get('/client_ids')
         async def get_client_ids():
+            start = time.perf_counter()
             try:
                 ids_list = self.client_database.index.to_list()
-                print(len(ids_list))
+                print("get_client_ids in {:0.4f} seconds".format(time.perf_counter()- start))
                 return {"ids": ids_list}
             except BaseException as e:
                 print('Error while trying to retrieve client ids list ' + str(e))
@@ -188,12 +208,14 @@ class App:
 
         @app.get('/nearest_neighbors_ids')
         async def get_nearest_neighbors_ids(client_id: int, n_neighbors: int):
+            start = time.perf_counter()
             try:
                 transformed_data = self.nearest_neighbors[0].transform(self.client_database.loc[[client_id]])
                 indices = self.nearest_neighbors[1].kneighbors(transformed_data, n_neighbors=n_neighbors,
                                                                return_distance=False)
                 neighbors_ids = self.client_database.iloc[indices[0].tolist()].index.tolist()
-
+                
+                print("get_nearest_neighbors_ids in {:0.4f} seconds".format(time.perf_counter()- start))
                 return {"nearest_neighbors_ids": neighbors_ids}
             except BaseException as e:
                 print('Error while trying to find nearest_neighbors: ' + str(e))

@@ -12,6 +12,7 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 import more_itertools as mit
+import time
 
 filterwarnings("ignore", message=".*The 'nopython' keyword.*")
 import shap
@@ -28,28 +29,33 @@ def store_request(time, response, params: str, endpoint: str, result=np.nan):
 
 @st.cache_data
 def get_all_client_ids():
+    start = time.perf_counter()
     response = requests.get(URL_API + "client_ids")
     store_request(datetime.now(), response, "no params", "GET_client_ids")
     if response.status_code != 200:
         raise Exception(
             "Request failed with status {}, {}".format(response.status_code, response.text))
-
+    
+    print("get_all_client_ids in {:0.4f} seconds".format(time.perf_counter()- start))
     return response.json()['ids']
 
 
 @st.cache_data
 def get_numeric_features():
+    start = time.perf_counter()
     response = requests.get(URL_API + 'numeric_features_list')
     store_request(datetime.now(), response, "no params", "GET_numeric_features_list")
     if response.status_code != 200:
         raise Exception(
             "Request failed with status {}, {}".format(response.status_code, response.text))
-
+    
+    print("get_numeric_features in {:0.4f} seconds".format(time.perf_counter()- start))
     return response.json()['numeric_features']
 
 
 @st.cache_data
 def get_all_client_info():
+    start = time.perf_counter()
     response = requests.get(URL_API + "download_database")
     
     if response.status_code != 200:
@@ -65,11 +71,13 @@ def get_all_client_info():
         open('database.pkl', "wb").write(response.content)
         client_dataset = pd.read_pickle('database.pkl')
 
+    print("get_all_client_info in {:0.4f} seconds".format(time.perf_counter()- start))
     return client_dataset
 
 
 @st.cache_data
 def get_default_threshold():
+    start = time.perf_counter()
     response = requests.get(URL_API + "threshold")
     if response.status_code != 200:
         store_request(datetime.now(), response, "no params", "GET_threshold")
@@ -77,11 +85,14 @@ def get_default_threshold():
             "Request failed with status {}, {}".format(response.status_code, response.text))
     thresh = response.json()['threshold']
     store_request(datetime.now(), response, "no params", "GET_threshold", thresh)
+    
+    print("get_default_threshold in {:0.4f} seconds".format(time.perf_counter()- start))
     return thresh
 
 
 @st.cache_data
 def get_nearest_neighbors_ids(client_id: int, n_neighbors: int):
+    start = time.perf_counter()
     params = {'client_id': client_id, 'n_neighbors': n_neighbors}
     response = requests.get(URL_API + 'nearest_neighbors_ids', params=params)
     store_request(datetime.now(), response, str(params), "GET_nearest_neighbors_ids")
@@ -90,11 +101,13 @@ def get_nearest_neighbors_ids(client_id: int, n_neighbors: int):
         raise Exception(
             "Request failed with status {}, {}".format(response.status_code, response.text))
 
+    print("get_nearest_neighbors_ids in {:0.4f} seconds".format(time.perf_counter()- start))
     return response.json()["nearest_neighbors_ids"]
 
 
 @st.cache_data
 def get_client_default_proba(client_id: int):
+    start = time.perf_counter()
     params = {'client_id': client_id}
     response = requests.get(URL_API + "predict_default", params=params)
 
@@ -104,12 +117,14 @@ def get_client_default_proba(client_id: int):
             "Request failed with status {}, {}".format(response.status_code, response.text))
 
     store_request(datetime.now(), response, str(params), "GET_predict_default", response.json()['proba_default'])
-
+    
+    print("get_client_default_proba in {:0.4f} seconds".format(time.perf_counter()- start))
     return response.json()
 
 
 @st.cache_data
 def get_all_clients_default_proba(client_ids: list[int]):
+    start = time.perf_counter()
     print('start computing all clients proba')
     results = []
     chunks = list(mit.chunked(client_ids, 1_000))
@@ -124,24 +139,28 @@ def get_all_clients_default_proba(client_ids: list[int]):
             raise Exception(
                 "Request failed with status {}, {}".format(response.status_code, response.text))
         results.extend(response.json()['proba_default'])
-
+    
+    print("get_all_clients_default_proba in {:0.4f} seconds".format(time.perf_counter()- start))
     return results
     
 
 @st.cache_data
 def get_client_info(client_id: int):
+    start = time.perf_counter()
     params = {"client_id": client_id}
     response = requests.get(URL_API + "client_info", params=params)
     store_request(datetime.now(), response, str(params), "GET_client_info")
     if response.status_code != 200:
         raise Exception(
             "Request failed with status {}, {}".format(response.status_code, response.text))
-
+    
+    print("get_client_info in {:0.4f} seconds".format(time.perf_counter()- start))
     return response.json()[0]
 
 
 @st.cache_data
 def check_client_in_database(client_id):
+    start = time.perf_counter()
     params = {"client_id": client_id}
     response = requests.get(URL_API + "in_database", params=params)
     if response.status_code != 200:
@@ -150,12 +169,14 @@ def check_client_in_database(client_id):
             "Request failed with status {}, {}".format(response.status_code, response.text))
 
     store_request(datetime.now(), response, str(params), "GET_in_database", response.json()['check'])
-
+    
+    print("check_client_in_database in {:0.4f} seconds".format(time.perf_counter()- start))
     return response.json()['check']
 
 
 @st.cache_data
 def build_waterfall_plot(client_id: int):
+    start = time.perf_counter()
     params = {"client_id": client_id}
     response = requests.get(URL_API + "shap_values_default", params=params)
     store_request(datetime.now(), response, str(params), "GET_shap_values_default")
@@ -173,12 +194,14 @@ def build_waterfall_plot(client_id: int):
     fig, ax = plt.subplots()
     ax = shap.plots.waterfall(shap_vals_explanation[0])
     plt.grid(False, axis='x')
-
+    
+    print("build_waterfall_plot in {:0.4f} seconds".format(time.perf_counter()- start))
     return fig
 
 
 def build_donut(dataset: pd.DataFrame, categ_var: str, text_color='#595959',
                 colors='Set2', labeldistance=1.1):
+    start = time.perf_counter()            
     with plt.style.context('seaborn-white'):
         sns.set_theme(style='white')
         fig, ax = plt.subplots()
@@ -203,10 +226,12 @@ def build_donut(dataset: pd.DataFrame, categ_var: str, text_color='#595959',
     ax.add_artist(centre_circle)
     plt.tight_layout()
 
+    print("build_donut in {:0.4f} seconds".format(time.perf_counter()- start))
     return fig
 
 
 def build_gauge(color: str):
+    start = time.perf_counter() 
     fig = go.Figure(go.Indicator(mode="gauge+number",
                                  value=st.session_state.proba_default_int,
                                  domain={'x': [0, 1], 'y': [0, 1]},
@@ -233,10 +258,12 @@ def build_gauge(color: str):
                        text='seuil: ' + st.session_state.thresh,
                        showarrow=False,
                        font={'size': 16, 'color': color})
+    print("build_gauge in {:0.4f} seconds".format(time.perf_counter()- start))
     return fig
 
 
 def build_scatter_plot(dataset: pd.DataFrame, x_var: str, y_var: str, colors='temps', with_hue=False):
+    start = time.perf_counter() 
     dataset['CLIENT_ID'] = dataset.index.tolist()
     dataset['CLIENT_TAG'] = 'other clients (n=' + str(dataset.shape[0]-1) + ')'
     dataset.loc[st.session_state.selected_client, 'CLIENT_TAG'] = 'selected client'
@@ -255,11 +282,13 @@ def build_scatter_plot(dataset: pd.DataFrame, x_var: str, y_var: str, colors='te
     fig.update_layout(legend=dict(orientation="h", yanchor="bottom", xanchor="center", y=1, x=.5), plot_bgcolor='white')
     fig.update_xaxes(gridcolor='lightgrey', linecolor='lightgrey', linewidth=2, showline=True, showgrid=False)
     fig.update_yaxes(gridcolor='lightgrey', linecolor='lightgrey', linewidth=2, showline=True, showgrid=False)
-
+    
+    print("build_scatter_plot in {:0.4f} seconds".format(time.perf_counter()- start))
     return fig
 
 
 def build_hist(dataset: pd.DataFrame, x_var: str, labels: dict, hue_var=None):
+    start = time.perf_counter()
     rgb_text = sns.color_palette('Greys', 15)[12]
     sns.set_theme(style='whitegrid')
     fig, ax = plt.subplots()
@@ -271,6 +300,7 @@ def build_hist(dataset: pd.DataFrame, x_var: str, labels: dict, hue_var=None):
     plt.tick_params(axis='both', which='major', labelsize=14, labelcolor=rgb_text)
     plt.grid(False, axis='x')
 
+    print("build_hist in {:0.4f} seconds".format(time.perf_counter()- start))
     return fig
 
 
@@ -287,6 +317,7 @@ def format_amount(amount: float):
 
 @st.cache_data
 def load_graphs():
+    start = time.perf_counter()
     dataset = st.session_state.dataset_original
     dataset['AGE'] = dataset['DAYS_BIRTH'].abs() // 365.25
     st.session_state.age_mean = str(np.abs(dataset['AGE'].mean()).astype(int)) + " ans"
@@ -295,9 +326,11 @@ def load_graphs():
 
     labels_age = {"x": "Tranches d'âge", "y": "Clients par tranche d'âge (%)"}
     st.session_state.hist_age = build_hist(dataset, 'AGE', labels_age, 'CODE_GENDER')
+    print("load_graphs in {:0.4f} seconds".format(time.perf_counter()- start))
 
 
 def filter_dataset():
+    start = time.perf_counter()
     dataset = st.session_state.dataset_original
     if not dataset.empty:
         dataset['AGE'] = dataset['DAYS_BIRTH'].abs() // 365.25
@@ -322,6 +355,7 @@ def filter_dataset():
         filtered_dataset = filtered_dataset.loc[mask_gender & mask_age_min & mask_age_max]
         st.session_state.dataset = filtered_dataset
         reload_scatter_plot()
+    print("filter_dataset in {:0.4f} seconds".format(time.perf_counter()- start))
 
 
 def reset_filter():
@@ -349,6 +383,7 @@ def reload_scatter_plot():
 
 @st.cache_data
 def initialize_dashboard():
+    start = time.perf_counter()
     st.session_state.requests_history = pd.DataFrame(columns=['time', 'params', 'endpoint', 'status', 'result'])
     st.session_state.ids = get_all_client_ids()
     st.session_state.numeric_features = get_numeric_features()
@@ -357,10 +392,12 @@ def initialize_dashboard():
     st.session_state.dataset_original = pd.read_pickle(DATABASE_PATH + '/database.pkl')
     st.session_state.dataset = st.session_state.dataset_original
     st.session_state.number_of_clients = len(st.session_state.ids)
+    print("initialize_dashboard in {:0.4f} seconds".format(time.perf_counter()- start))
 
 
 @st.cache_data
 def load_client_info(client_id: int):
+    start = time.perf_counter()
     if check_client_in_database(client_id):
         data = get_client_default_proba(client_id)
         info = get_client_info(client_id)
@@ -389,3 +426,4 @@ def load_client_info(client_id: int):
 
     else:
         st.session_state.missing_id = True
+    print("load_client_info in {:0.4f} seconds".format(time.perf_counter()- start))
