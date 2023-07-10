@@ -22,8 +22,8 @@ class TestDashboard:
             os.remove('database.pkl')
 
     @staticmethod
-    def mock_action(time, response, params, endpoint, result=np.nan):
-        request_log = pd.DataFrame([{'time': time, 'params': params, 'endpoint': endpoint,
+    def mock_action(response, response_time, params, endpoint, result=np.nan):
+        request_log = pd.DataFrame([{'time': response_time, 'params': params, 'endpoint': endpoint,
                                      'status': response.status_code, 'result': result}])
         pd.concat([pd.DataFrame(), request_log])
 
