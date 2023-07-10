@@ -45,19 +45,19 @@ def test_download_client_database_should_return_message(client):
     assert response.json()['message'] == os.environ.get('DATA_PATH') + wrong_file_name + " file not found"
 
 
-def test_predict_default_status_code_ok(client):
-    response = client.get('/predict_default', params={"client_id": CLIENT_ID_TEST})
+def test_predict_default_one_status_code_ok(client):
+    response = client.get('/predict_default_one', params={"client_id": CLIENT_ID_TEST})
     assert response.status_code == 200
 
 
-def test_predict_default_should_contain_keys(client):
-    response = client.get('/predict_default', params={"client_id": CLIENT_ID_TEST})
+def test_predict_default_one_should_contain_keys(client):
+    response = client.get('/predict_default_one', params={"client_id": CLIENT_ID_TEST})
     assert 'prediction' in response.json()
     assert 'proba_default' in response.json()
 
 
-def test_predict_predict_default_all_should_return_list(client):
-    response = client.get('/predict_default_all_clients', params={"client_ids": [CLIENT_ID_TEST]})
+def test_predict_default_many_should_return_list(client):
+    response = client.get('/predict_default_many', params={"client_ids": [CLIENT_ID_TEST]})
     assert response.status_code == 200
     assert 'proba_default' in response.json()
     assert isinstance(response.json()['proba_default'], list)

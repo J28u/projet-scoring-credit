@@ -169,7 +169,7 @@ def get_nearest_neighbors_ids(client_id: int, n_neighbors: int):
 
 
 @st.cache_data
-def get_client_default_proba(client_id: int):
+def get_client_default_proba_one(client_id: int):
     """
     Renvoie la probabilité de défaut de remboursement d'un client ainsi qu'un message
     indiquant si la demande de crédit a été acceptée ou non
@@ -185,21 +185,21 @@ def get_client_default_proba(client_id: int):
     """
     start = time.perf_counter()
     params = {'client_id': client_id}
-    response = requests.get(URL_API + "predict_default", params=params)
+    response = requests.get(URL_API + "predict_default_one", params=params)
 
     if response.status_code != 200:
-        store_request(response, datetime.now(), str(params), "GET_predict_default")
+        store_request(response, datetime.now(), str(params), "GET_predict_default_one")
         raise Exception(
             "Request failed with status {}, {}".format(response.status_code, response.text))
 
-    store_request(response, datetime.now(), str(params), "GET_predict_default", response.json()['proba_default'])
+    store_request(response, datetime.now(), str(params), "GET_predict_default_one", response.json()['proba_default'])
     
     print("get_client_default_proba in {:0.4f} seconds".format(time.perf_counter() - start))
     return response.json()
 
 
 @st.cache_data
-def get_all_clients_default_proba(client_ids: list[int]):
+def get_clients_default_proba_many(client_ids: list[int]):
     """
     Renvoie, pour une liste de clients, une liste contenant la probabilité de défaut 
     de remboursement de chacun(à partir de la réponse renvoyée par l'API 'DefaultRiskApp').
@@ -217,16 +217,16 @@ def get_all_clients_default_proba(client_ids: list[int]):
     chunks = list(mit.chunked(client_ids, 1_000))
     for i, chunk in enumerate(chunks):
         params = {'client_ids': chunk}
-        response = requests.get(URL_API + 'predict_default_all_clients', params=params)
+        response = requests.get(URL_API + 'predict_default_many', params=params)
         store_request(response, datetime.now(), str({"client_id": "chunk " + str(i+1) + "/" + str(len(chunks))}),
-                      "GET_predict_default_all_clients")
+                      "GET_predict_default_many")
 
         if response.status_code != 200:
             raise Exception(
                 "Request failed with status {}, {}".format(response.status_code, response.text))
         results.extend(response.json()['proba_default'])
     
-    print("get_all_clients_default_proba in {:0.4f} seconds".format(time.perf_counter() - start))
+    print("get_clients_default_proba_many in {:0.4f} seconds".format(time.perf_counter() - start))
     return results
     
 
@@ -322,7 +322,7 @@ def build_waterfall_plot(client_id: int):
 
 
 def build_donut(dataset: pd.DataFrame, categ_var: str, text_color='#595959',
-                colors='Set2', labeldistance=1.1):
+                colors='colorblind', labeldistance=1.1):
     """
     Renvoie un graphique en forme de donut représentant la répartition d'une variable qualitative.
     
@@ -482,7 +482,7 @@ def build_hist(dataset: pd.DataFrame, x_var: str, labels: dict, hue_var=None):
     sns.set_theme(style='whitegrid')
     fig, ax = plt.subplots()
     ax = sns.histplot(data=dataset, x=x_var, hue=hue_var, binwidth=5,
-                      stat="percent", binrange=[20, 70], alpha=.8, palette='RdBu', linewidth=3)
+                      stat="percent", binrange=[20, 70], alpha=.8, palette='colorblind', linewidth=3)
 
     ax.set_xlabel(labels['x'], labelpad=20, fontsize=20, fontname='Corbel', color=rgb_text)
     ax.set_ylabel(labels['y'], labelpad=20, fontsize=20, fontname='Corbel', color=rgb_text)
@@ -603,7 +603,7 @@ def reload_scatter_plot():
     with_hue = False
     if st.session_state.dataset.shape[0] <= 5_000:
         ids = st.session_state.dataset.index.to_list()
-        st.session_state.dataset['DEFAULT_PROBA'] = get_all_clients_default_proba(ids)
+        st.session_state.dataset['DEFAULT_PROBA'] = get_clients_default_proba_many(ids)
         with_hue = True
     st.session_state.scatter = build_scatter_plot(st.session_state.dataset,
                                                   st.session_state.x_var,
@@ -651,7 +651,7 @@ def load_client_info(client_id: int):
     """
     start = time.perf_counter()
     if check_client_in_database(client_id):
-        data = get_client_default_proba(client_id)
+        data = get_client_default_proba_one(client_id)
         info = get_client_info(client_id)
 
         st.session_state.selected_client = client_id

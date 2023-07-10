@@ -92,25 +92,25 @@ class TestDashboard:
         assert resp == expected_content
 
     def test_get_client_default_proba(self, mocked_responses):
-        mocked_responses.get(URL_API_TEST + "predict_default",
+        mocked_responses.get(URL_API_TEST + "predict_default_one",
                              json={'prediction': "Crédit accordé", 'proba_default': 0.19456},
                              status=200,
                              content_type='application/json')
 
         from dashboard import functions
-        resp = functions.get_client_default_proba(215797)
+        resp = functions.get_client_default_proba_one(215797)
         assert resp['prediction'] == "Crédit accordé"
         assert resp['proba_default'] == 0.19456
 
     def test_get_all_clients_default_proba(self, mocked_responses):
         expected_content = [0.1945, 0.8976, 0.5643, 0.3452, 0.1237, 0.7843]
-        mocked_responses.get(URL_API_TEST + 'predict_default_all_clients',
+        mocked_responses.get(URL_API_TEST + 'predict_default_many',
                              json={'proba_default': expected_content},
                              status=200,
                              content_type='application/json')
 
         from dashboard import functions
-        resp = functions.get_all_clients_default_proba([215797, 386902, 309336, 233948, 176395, 265098])
+        resp = functions.get_clients_default_proba_many([215797, 386902, 309336, 233948, 176395, 265098])
         assert resp == expected_content
 
     def test_get_client_info(self, mocked_responses):

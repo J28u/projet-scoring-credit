@@ -195,8 +195,8 @@ class App:
             print('Client database file not found: ' + file_path)
             return {"message": file_path + " file not found"}
 
-        @app.get('/predict_default')
-        async def predict_default(client_id: int):
+        @app.get('/predict_default_one')
+        async def predict_default_one(client_id: int):
             """
             Renvoie la probabilité de défaut de remboursement d'un client ainsi qu'un 
             message indiquant si la demande de crédit est acceptée ou refusée.
@@ -218,15 +218,15 @@ class App:
                 else:
                     prediction = "Crédit accordé"
                     
-                print("predict_default in {:0.4f} seconds".format(time.perf_counter() - start))
+                print("predict_default_one in {:0.4f} seconds".format(time.perf_counter() - start))
                 return {'prediction': prediction, 'proba_default': client_default_proba}
             except BaseException as e:
                 print('Error while predicting client default proba: ' + str(e))
                 my_logger.error('Error while predicting client default proba: ' + str(e))
                 return {'prediction': "error", 'proba_default': 0}
 
-        @app.get('/predict_default_all_clients')
-        async def predict_default_all(client_ids: list[int] = Query(...)):
+        @app.get('/predict_default_many')
+        async def predict_default_many(client_ids: list[int] = Query(...)):
             """
             Renvoie, pour une liste de clients, une liste contenant la probabilité 
             de défaut de remboursement de chacun.
@@ -241,7 +241,7 @@ class App:
                 client_proba = self.classifier.predict_proba(client_info)
                 client_default_proba = client_proba[:, 1]
                 
-                print("predict_default_all in {:0.4f} seconds".format(time.perf_counter() - start))
+                print("predict_default_many in {:0.4f} seconds".format(time.perf_counter() - start))
                 return {'proba_default': client_default_proba.tolist()}
             except BaseException as e:
                 print('Error while trying to predict dafault proba for all clients: ' + str(e))

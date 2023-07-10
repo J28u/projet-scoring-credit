@@ -31,9 +31,10 @@ def main():
     if "load_state" not in st.session_state:
         st.session_state.load_state = False
 
-    title_col1, title_col2 = st.columns([0.7, 0.3])
-    title_col1.title('Dashboard Client ')
-    with title_col2.container():
+    st.title('Comprendre les décisions d\'octroi de crédits ')
+    header_col1, header_col2 = st.columns([0.7, 0.3])
+    header_col1.header('_Société Prêt à dépenser_')
+    with header_col2.container():
         placeholder = st.empty()
 
     with st.form("Form"):
