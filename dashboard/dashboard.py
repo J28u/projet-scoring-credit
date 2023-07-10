@@ -7,6 +7,15 @@ from functions import load_client_info, filter_dataset, reload_scatter_plot, ini
 
 
 def main():
+    """
+    Affiche un dashboard interactif streamlit pour aider les chargés de relation client, 
+    de la société "Prêt à dépenser", à interpréter les prédictions du modèle de scoring et
+    à mieux comprendre leurs clients.
+            
+    Returns : 
+    -------------------------------------
+    None
+    """
     initialize_dashboard()
 
     st.markdown("""
