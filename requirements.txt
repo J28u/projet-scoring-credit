@@ -14,5 +14,11 @@ uvicorn==0.22.0
 imbalanced-learn==0.10.1
 lightgbm==3.3.5
 scikit-learn==1.2.1
+pytest==7.4.0
+pytest-mock==3.11.1
+httpx==0.24.1
+responses==0.23.1
+coverage==7.2.7
+pytest-cov==4.1.0
 
 

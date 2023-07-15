@@ -1,0 +1,13 @@
+[run]
+omit=
+      */__init__.py
+      notebook/*
+      tests/*
+      */usr/local/lib*
+      api/data/*
+      api/models/*
+      *Dockerfile*
+      *.dockerignore
+
+
+
