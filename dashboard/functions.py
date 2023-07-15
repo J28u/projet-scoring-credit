@@ -387,7 +387,7 @@ def build_gauge(color: str):
     fig = go.Figure(go.Indicator(mode="gauge+number",
                                  value=st.session_state.proba_default_int,
                                  domain={'x': [0, 1], 'y': [0, 1]},
-                                 title={'text': 'Probabilité de défault (%)', 'font': {'size': 14, 'color': "#262730"},
+                                 title={'text': 'Probabilité de défaut (%)', 'font': {'size': 14, 'color': "#262730"},
                                         'align': "left"},
                                  gauge={'axis': {'range': [None, 100],
                                                  'tickwidth': 2,
@@ -459,7 +459,7 @@ def build_scatter_plot(dataset: pd.DataFrame, x_var: str, y_var: str, colors='te
     return fig
 
 
-def build_hist(dataset: pd.DataFrame, x_var: str, labels: dict, hue_var=None):
+def build_hist(dataset: pd.DataFrame, x_var: str, labels: dict, client_id: int, hue_var=None, palette='colorblind'):
     """
     Renvoie un histogramme
     
@@ -468,27 +468,30 @@ def build_hist(dataset: pd.DataFrame, x_var: str, labels: dict, hue_var=None):
     dataset : pd.DataFrame : jeu de données
     x_var : str : nom de la variable quantitative à mettre en abscisse
     labels : dict : dictionnaire contenant les titres des axis {'x' : blabla, 'y': bloblo}
+    client_id : int : identifiant du client sélectionné
     
     Optionnal arguments : 
     -------------------------------------
-    with_var : str : nom de la variable utilisée pour colorer le graphique
+    hue_var : str : nom de la variable utilisée pour colorer le graphique
+    palette : str : palette de couleurs seaborn à utiliser
             
     Returns : 
     -------------------------------------
     fig
     """
     start = time.perf_counter()
-    rgb_text = sns.color_palette('Greys', 15)[12]
-    sns.set_theme(style='whitegrid')
-    fig, ax = plt.subplots()
-    ax = sns.histplot(data=dataset, x=x_var, hue=hue_var, binwidth=5,
-                      stat="percent", binrange=[20, 70], alpha=.8, palette='colorblind', linewidth=3)
-
-    ax.set_xlabel(labels['x'], labelpad=20, fontsize=20, fontname='Corbel', color=rgb_text)
-    ax.set_ylabel(labels['y'], labelpad=20, fontsize=20, fontname='Corbel', color=rgb_text)
-    plt.tick_params(axis='both', which='major', labelsize=14, labelcolor=rgb_text)
-    plt.grid(False, axis='x')
-
+    rgb_text = sns.color_palette('Greys', 15).as_hex()[12]
+    fig = px.histogram(data, x=x_var, color=hue_var, nbins=20, labels=labels, opacity=.8, 
+                       range_x=[20, 70], histnorm='percent', 
+                       color_discrete_sequence=sns.color_palette(palette).as_hex()[:2],
+                       template="plotly_white")
+    
+    fig.update_layout(bargap=0.05, font_family="Corbel", font_color=rgb_text, yaxis_title=labels['y'])
+    fig.update_yaxes(showgrid=True)
+    fig.add_vline(x=dataset.loc[[client_id], x_var].values[0], type='line',
+                  line_dash = 'dash', line_color = 'darkmagenta', line_width=3)
+    fig.add_annotation(text="selected client", x=dataset.loc[[client_id], x_var].values[0] - 3, y=32, showarrow=False)
+    
     print("build_hist in {:0.4f} seconds".format(time.perf_counter() - start))
     return fig
 
@@ -532,8 +535,9 @@ def load_graphs():
     st.session_state.income_mean = format_amount(dataset['AMT_INCOME_TOTAL'].mean())
     st.session_state.donut_gender = build_donut(dataset, 'CODE_GENDER')
 
-    labels_age = {"x": "Tranches d'âge", "y": "Clients par tranche d'âge (%)"}
-    st.session_state.hist_age = build_hist(dataset, 'AGE', labels_age, 'CODE_GENDER')
+    labels_age = {"AGE": "Tranches d'âge", "y": "Clients par tranche d'âge (%)"}
+    st.session_state.hist_age = build_hist(dataset, 'AGE', labels_age, 
+                                           st.session_state.selected_client, 'CODE_GENDER')
     print("load_graphs in {:0.4f} seconds".format(time.perf_counter() - start))
 
 

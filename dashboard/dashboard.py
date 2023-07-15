@@ -37,9 +37,9 @@ def main():
     with header_col2.container():
         placeholder = st.empty()
 
-    with st.form("Form"):
-        st.selectbox("Select an ID", st.session_state.ids, key='client_select_box')
-        btn = st.form_submit_button("Submit", on_click=load_client_info,
+    with st.form("FormID"):
+        st.selectbox("Sélectionnez un identifiant client", st.session_state.ids, key='client_select_box')
+        btn = st.form_submit_button("Sélectionner", on_click=load_client_info,
                                     kwargs={'client_id': st.session_state.client_select_box})
 
     tab1, tab2, tab3, tab4 = st.tabs(['Score', 'Info perso', 'Comparer', 'Historique demandes API'])
@@ -99,29 +99,27 @@ def main():
                 tab2_col1_11.metric('Emploi', st.session_state.occupation)
                 tab2_col1_12.metric('Revenu total', st.session_state.income)
 
-                # delta='revenu client moyen ' + str(st.session_state.income_mean)
                 tab2_col1.metric('Logement', st.session_state.housing)
                 tab2_col1.metric('Education', st.session_state.education)
-
-                # tab2_col1.metric('Type de revenus', st.session_state.income_type)
 
                 tab2_col2.subheader('Distributions')
                 tab2_col2.pyplot(st.session_state.donut_gender, use_container_width=True)
                 with tab2_col2.container():
                     st.divider()
-                tab2_col2.pyplot(st.session_state.hist_age, use_container_width=True)
+                tab2_col2.plotly_chart(st.session_state.hist_age, use_container_width=True)
 
     with tab3:
+        tab3.subheader('Positionner le profil client par rapport aux autres clients')
         with st.form("Form1"):
-            st.selectbox("Feature X", st.session_state.numeric_features, key='x_var')
-            st.selectbox("Feature Y", st.session_state.numeric_features, key='y_var')
+            st.selectbox("Info perso 1 (abscisse)", st.session_state.numeric_features, key='x_var')
+            st.selectbox("Info perso 2 (ordonnée)", st.session_state.numeric_features, key='y_var')
 
-            btn_var = st.form_submit_button("Submit", on_click=reload_scatter_plot)
+            btn_var = st.form_submit_button("Sélectionner", on_click=reload_scatter_plot)
 
-        with st.expander('Filtrer les données'):
+        with st.expander('Filtrer le groupe de clients à comparer'):
             with st.container():
                 st.write('Par dossiers clients similaires')
-                st.number_input('Enter a number of neighbors',
+                st.number_input('Choisissez un nombre de clients',
                                 min_value=1, max_value=st.session_state.number_of_clients - 1,
                                 value=10,
                                 key='n_neighbors')
@@ -137,9 +135,9 @@ def main():
 
             tab3_col1, tab3_col2 = st.columns([0.13, 0.87])
             with tab3_col1.container():
-                btn_filter = st.button('Apply Filter', on_click=filter_dataset)
+                btn_filter = st.button('Filtrer', on_click=filter_dataset)
             with tab3_col2.container():
-                btn_remove_filter = st.button('Remove Filter', on_click=reset_filter)
+                btn_remove_filter = st.button('Annuler les filtres', on_click=reset_filter)
 
         if btn_var or btn_filter or btn_remove_filter:
             st.plotly_chart(st.session_state.scatter, use_container_width=True)
