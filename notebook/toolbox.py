@@ -288,6 +288,37 @@ def compare_donuts(dataset_before: pd.DataFrame, dataset_after: pd.DataFrame, ca
     plt.show()
 
     
+def display_roc_curve(fpr: np.array, tpr: np.array, figsize=(10, 6), palette='muted'):
+    """
+    Affiche la courbe ROC
+
+    Positional arguments : 
+    -------------------------------------
+    fpr : np.array : taux de faux positifs
+    tpr : np.array : taux de vrais positifs
+    
+    Optionnal arguments : 
+    -------------------------------------
+    figsize : tuple : taille de la zone d'affichage du graphique (largeur, hauteur)
+    palette : str : couleur de la courbe
+
+    Returns
+    -------------------------------------
+    None
+    """
+    
+    with plt.style.context('seaborn-white'):
+        sns.set_theme(style='whitegrid', palette=palette)
+        plt.figure(figsize=figsize)
+        plt.plot(fpr, tpr)
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.0])
+        plt.title('Courbe ROC', fontsize=20, fontname='Corbel')
+        plt.xlabel('1-Specificité', fontsize=14, fontname='Corbel')
+        plt.ylabel('Sensibilité', fontsize=14, fontname='Corbel')
+        plt.show()
+
+    
 def missing_values_by_column(dataset: pd.DataFrame):
     """
     Retourne un dataframe avec le nombre et le pourcentage de valeurs manquantes par colonnes
@@ -372,7 +403,8 @@ def display_barplot(dataset: pd.DataFrame, x_column: str, y_column: str, titles:
     plt.show()
 
     
-def plot_feature_importance_tree_model(tree_models: [dict], features : [str], figsize: tuple, top_n=10):
+def plot_feature_importance_tree_model(tree_models: [dict], features : [str], figsize: tuple, top_n=10, palette="Set2", 
+                                       top=0.8, wspace=0.8, hspace=0.5):
     """
     Affiche les variables ayant la plus grande importance dans un ou plusieurs modèles ensemblistes utilisant des arbres de décision
 
@@ -385,18 +417,22 @@ def plot_feature_importance_tree_model(tree_models: [dict], features : [str], fi
     Optional arguments : 
     -------------------------------------
     top_n : int : nombre de variables à afficher
+    palette : str : nom de la palette de couleur seaborn à utiliser
+    top : float : position de départ des graphiques dans la figure
+    wspace : float : largeur de l'espace entre les graphiques
+    hspace : float : hauteur de l'espace entre les graphiques
     
     Returns
     -------------------------------------
     None
     """ 
-    
     sns.set_theme(style='white')
+    rgb_text = sns.color_palette('Greys', 15)[12]
     plt.figure(figsize=figsize)
-    color_list =  sns.color_palette("Set2", len(features))
+    color_list =  sns.color_palette(palette, len(features))
     
     fig, axs = plt.subplots(1, len(tree_models), figsize=figsize, facecolor='w', edgecolor='k')
-    fig.subplots_adjust(hspace = 0.5, wspace=0.8, top=0.8)
+    fig.subplots_adjust(hspace = hspace, wspace=wspace, top=top)
     axs = axs.ravel()
     for i in range(len(tree_models)):
         feature_importance = tree_models[i]["model"][-1].feature_importances_
@@ -404,10 +440,12 @@ def plot_feature_importance_tree_model(tree_models: [dict], features : [str], fi
         indices = indices[-top_n:]
 
         bars = axs[i].barh(range(len(indices)), feature_importance[indices], color='b', align='center') 
-        axs[i].set_title(tree_models[i]["name"], fontsize=20)
+        axs[i].set_title(tree_models[i]["name"], fontsize=30, fontname='Corbel', color=rgb_text)
+        axs[i].set_xlabel(tree_models[i]['x_label'], fontsize=20, fontname='Corbel', labelpad=20, color=rgb_text)
 
         plt.sca(axs[i])
         plt.yticks(range(len(indices)), [features[j] for j in indices], fontsize=14) 
+        plt.tick_params(axis='both', which='major', labelsize=14)
 
         for i, ticklabel in enumerate(plt.gca().get_yticklabels()):
             ticklabel.set_color(color_list[indices[i]])  
@@ -416,7 +454,7 @@ def plot_feature_importance_tree_model(tree_models: [dict], features : [str], fi
             bar.set_color(color_list[indices[i]])
         plt.box(False)
 
-    plt.suptitle("Top des variables les plus 'importantes'", fontsize=25, fontname='Corbel')
+    plt.suptitle("Top des {} variables les plus 'importantes'".format(str(top_n)), fontsize=40, fontname='Corbel', color=rgb_text)
     
     plt.show()
     
@@ -582,7 +620,7 @@ def preprocess_bureau_and_balance(bureau_file_path: str, balance_file_path: str,
     del bb, bb_agg
     gc.collect()
 
-    # Fonctions d'aggrégation utilisées pour les variables numériques
+    # Fonctions d'agrégation utilisées pour les variables numériques
     num_aggregations = {
         'DAYS_CREDIT': ['min', 'max', 'mean', 'var'],
         'DAYS_CREDIT_ENDDATE': ['min', 'max', 'mean'],
@@ -600,14 +638,14 @@ def preprocess_bureau_and_balance(bureau_file_path: str, balance_file_path: str,
         'MONTHS_BALANCE_SIZE': ['mean', 'sum']
     }
 
-    # Fonctions d'aggrégation utilisées pour les variables catégorielles : le mode
+    # Fonctions d'agrégation utilisées pour les variables catégorielles : le mode
     cat_aggregations = {}
     for cat in bureau_cat:
         cat_aggregations[cat] = [mode]
     for cat in bb_cat:
         cat_aggregations[cat + "_MODE"] = [mode]
 
-    # Aggrège les données par demande déposée auprès de la société 'Prêt à dépenser'
+    # Agrège les données par demande déposée auprès de la société 'Prêt à dépenser'
     bureau_agg = bureau.groupby('SK_ID_CURR').agg(
         {**num_aggregations, **cat_aggregations})
     bureau_agg.columns = pd.Index(['BURO_' + e[0] + "_" + e[1].upper()
@@ -673,7 +711,7 @@ def preprocess_previous_applications(file_path: str, save=True, data_dir='data/'
     prev['APP_CREDIT_PERC'] = prev['AMT_APPLICATION'] / prev['AMT_CREDIT']
     prev[np.isinf(prev['APP_CREDIT_PERC'])] = 0
 
-    # Fonctions d'aggrégation utilisées pour les variables numériques
+    # Fonctions d'agrégation utilisées pour les variables numériques
     num_aggregations = {
         'AMT_ANNUITY': ['min', 'max', 'mean'],
         'AMT_APPLICATION': ['min', 'max', 'mean'],
@@ -686,25 +724,25 @@ def preprocess_previous_applications(file_path: str, save=True, data_dir='data/'
         'DAYS_DECISION': ['min', 'max', 'mean'],
         'CNT_PAYMENT': ['mean', 'sum'],
     }
-    # Fonctions d'aggrégations utilisées pour les variables catégorielles
+    # Fonctions d'agrégations utilisées pour les variables catégorielles
     cat_aggregations = {}
     for cat in categ_var:
         cat_aggregations[cat] = [mode]
 
-    # Agrège les demandes de prêts au HomeCredit par identifiant client actuel
+    # Agrège les anciennes demandes de prêts par identifiant client actuel
     prev_agg = prev.groupby('SK_ID_CURR').agg(
         {**num_aggregations, **cat_aggregations})
     prev_agg.columns = pd.Index(['PREV_' + e[0] + "_" + e[1].upper()
                                  for e in prev_agg.columns.tolist()])
 
-    # Feature Engineering : ajoute les mêmes variables numériques filtrées sur les demandes acceptées
+    # Feature Engineering : ajoute les mêmes variables numériques filtrées sur les anciennes demandes acceptées
     approved = prev[prev['NAME_CONTRACT_STATUS'] == 'Approved']
     approved_agg = approved.groupby('SK_ID_CURR').agg(num_aggregations)
     approved_agg.columns = pd.Index(['APPROVED_' + e[0] + "_" + e[1].upper()
                                      for e in approved_agg.columns.tolist()])
     prev_agg = prev_agg.join(approved_agg, how='left', on='SK_ID_CURR')
 
-    # Feature Engineering : ajoute les mêmes variables numériques filtrées sur les demandes refusées
+    # Feature Engineering : ajoute les mêmes variables numériques filtrées sur les anciennes demandes refusées
     refused = prev[prev['NAME_CONTRACT_STATUS'] == 'Refused']
     refused_agg = refused.groupby('SK_ID_CURR').agg(num_aggregations)
     refused_agg.columns = pd.Index(['REFUSED_' + e[0] + "_" + e[1].upper()
@@ -723,9 +761,8 @@ def preprocess_previous_applications(file_path: str, save=True, data_dir='data/'
 
 def preprocess_pos_cash(file_path: str, save=True, data_dir='data/'):
     """
-    Ouvre et nettoie le jeu de données, puis 
-    aggège les données mensuelles par identifiant client actuel ('SK_ID_CURR'),
-    ajoute une nouvelle variable contenant le nombre de POS_CASH par client
+    Agrège les données mensuelles par identifiant client actuel ('SK_ID_CURR'),
+    ajoute une nouvelle variable contenant le nombre de POS_CASH par client.
 
     Positional arguments : 
     -------------------------------------
@@ -743,13 +780,13 @@ def preprocess_pos_cash(file_path: str, save=True, data_dir='data/'):
     pos = pd.read_csv(file_path)
     categ_var = [col for col in pos.columns if pos[col].dtype == 'object']
 
-    # Fonctions d'aggrégation utilisées pour les variables numériques
+    # Fonctions d'agrégation utilisées pour les variables numériques
     aggregations = {
         'MONTHS_BALANCE': ['max', 'mean', 'size'],
         'SK_DPD': ['max', 'mean'],
         'SK_DPD_DEF': ['max', 'mean']
     }
-    # Fonctions d'aggrégations utilisées pour les variables catégorielles
+    # Fonctions d'agrégations utilisées pour les variables catégorielles
     for cat in categ_var:
         aggregations[cat] = [mode]
 
@@ -805,7 +842,7 @@ def preprocess_installments_payments(file_path: str, save=True, data_dir='data/'
     ins['DPD'] = ins['DPD'].apply(lambda x: x if x > 0 else 0)
     ins['DBD'] = ins['DBD'].apply(lambda x: x if x > 0 else 0)
 
-    # Fonctions d'aggrégation utilisées sur les variables numériques
+    # Fonctions d'agrégation utilisées sur les variables numériques
     aggregations = {
         'NUM_INSTALMENT_VERSION': ['nunique'],
         'DPD': ['max', 'mean', 'sum'],
@@ -816,7 +853,7 @@ def preprocess_installments_payments(file_path: str, save=True, data_dir='data/'
         'AMT_PAYMENT': ['min', 'max', 'mean', 'sum'],
         'DAYS_ENTRY_PAYMENT': ['max', 'mean', 'sum']
     }
-    # Fonctions d'aggrégation utilisées sur les variables catégorielles
+    # Fonctions d'agrégation utilisées sur les variables catégorielles
     for cat in categ_var:
         aggregations[cat] = [mode]
 
@@ -859,7 +896,7 @@ def preprocess_credit_card_balance(file_path: str, save=True, data_dir='data/'):
     cc.drop(columns=['SK_ID_PREV'], axis=1, inplace=True)
     numeric_var = cc._get_numeric_data().columns
 
-    # Fonctions d'aggrégation utilisées
+    # Fonctions d'agrégation utilisées
     aggregations = {'NAME_CONTRACT_STATUS': [mode]}
 
     for num in numeric_var:
@@ -905,7 +942,7 @@ def join_dataframes(dataset: pd.DataFrame, df_to_join: [pd.DataFrame], key: str)
 
 def preprocess_data(data_name: DataFile, data_path: [str]):
     """
-    Applique un prétraitement spécifique (i.e. nettoyage + aggrégation + feature engineering) 
+    Applique un prétraitement spécifique (i.e. nettoyage + agrégation + feature engineering) 
     à un ou plusieurs jeux de données
 
     Positional arguments : 
