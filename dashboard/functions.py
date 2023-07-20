@@ -629,7 +629,7 @@ def initialize_dashboard():
     """
     start = time.perf_counter()
     st.session_state.requests_history = pd.DataFrame(columns=['time', 'params', 'endpoint', 'status', 'result'])
-    st.session_state.ids = get_all_client_ids()
+    st.session_state.ids = get_all_client_ids()[:50]
     st.session_state.numeric_features = get_numeric_features()
     st.session_state.thresh_int = np.round(get_default_threshold() * 100).astype(int)
     st.session_state.thresh = str(st.session_state.thresh_int) + "%"
