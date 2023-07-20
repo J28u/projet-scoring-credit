@@ -481,7 +481,7 @@ def build_hist(dataset: pd.DataFrame, x_var: str, labels: dict, client_id: int, 
     """
     start = time.perf_counter()
     rgb_text = sns.color_palette('Greys', 15).as_hex()[12]
-    fig = px.histogram(data, x=x_var, color=hue_var, nbins=20, labels=labels, opacity=.8, 
+    fig = px.histogram(dataset, x=x_var, color=hue_var, nbins=20, labels=labels, opacity=.8, 
                        range_x=[20, 70], histnorm='percent', 
                        color_discrete_sequence=sns.color_palette(palette).as_hex()[:2],
                        template="plotly_white")
