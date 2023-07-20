@@ -38,7 +38,7 @@ def main():
         placeholder = st.empty()
 
     with st.form("FormID"):
-        st.selectbox("Sélectionnez un identifiant client", st.session_state.ids, key='client_select_box')
+        st.selectbox("Sélectionnez un identifiant client", st.session_state.ids[:50], key='client_select_box')
         btn = st.form_submit_button("Sélectionner", on_click=load_client_info,
                                     kwargs={'client_id': st.session_state.client_select_box})
 
