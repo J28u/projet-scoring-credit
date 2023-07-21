@@ -20,6 +20,18 @@ Le dashboard interactif devra contenir au minimum les fonctionnalités suivantes
  * Utiliser un logiciel de version de code pour assurer l’intégration du modèle
  * Déployer un modèle via une API dans le Web
 
+ ## Découpage des dossiers :
+ * api :
+     * dossier "app" (code permettant de déployer l'API),
+     * dossier "data" (infos clients),
+     * dossier "models" (modèle de scoring sérialisé)
+ * dashboard :
+     * fichier "dashboard" (code générant le dashboard),
+     * fichier "functions" (fonctions appelées par le dashboard)
+ * notebook : notebook, fonctions appelées par le notebook, tableau HTML d'analyse de data drift
+ * note_technique : note méthodologique
+ * tests : tests unitaires
+ * htmlcov : tableau HTML de couverture de test
 
 ## Swagger API de Prédiction (Azure Web Application): 
 
