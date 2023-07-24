@@ -633,7 +633,7 @@ def initialize_dashboard():
     st.session_state.numeric_features = get_numeric_features()
     st.session_state.thresh_int = np.round(get_default_threshold() * 100).astype(int)
     st.session_state.thresh = str(st.session_state.thresh_int) + "%"
-    st.session_state.dataset_original = pd.read_pickle(DATABASE_PATH + '/database.pkl')
+    st.session_state.dataset_original = pd.read_pickle(DATABASE_PATH + 'database.pkl')
     st.session_state.dataset = st.session_state.dataset_original
     st.session_state.number_of_clients = len(st.session_state.ids)
     print("initialize_dashboard in {:0.4f} seconds".format(time.perf_counter() - start))
