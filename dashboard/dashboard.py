@@ -16,7 +16,8 @@ def main():
     -------------------------------------
     None
     """
-    initialize_dashboard()
+    if "ids" not in st.session_state:
+        initialize_dashboard()
 
     st.markdown("""
                 <style>
