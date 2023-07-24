@@ -352,5 +352,5 @@ app_fastapi = App(title='DefaultRiskApp',
 
 
 if __name__ == '__main__':
-    uvicorn.run(app_fastapi, host='0.0.0.0', port=80)
+    uvicorn.run(app_fastapi, host='0.0.0.0', port=2368)
 # uvicorn main:app_fastapi --reload
