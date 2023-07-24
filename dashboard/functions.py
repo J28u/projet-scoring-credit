@@ -615,7 +615,6 @@ def reload_scatter_plot():
                                                   with_hue=with_hue)
 
 
-@st.cache_data
 def initialize_dashboard():
     """
     Initialize le dashboard, i.e. récupère et enregistre tous les ids clients répertoriés, 
