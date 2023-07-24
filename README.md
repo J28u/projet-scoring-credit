@@ -33,13 +33,14 @@ Le dashboard interactif devra contenir au minimum les fonctionnalités suivantes
  * tests : tests unitaires
  * htmlcov : tableau HTML de couverture de test
 
-## Swagger API de Prédiction (Azure Web Application): 
+## Swagger API de Prédiction : 
 
-https://projet7api.azurewebsites.net/docs
+* Azure Web App : https://projet7api.azurewebsites.net/docs
 
-## Dashboard client (Azure Web Application): 
+## Dashboard client : 
 
-https://ocprojet7.azurewebsites.net
+* Azure Web application (non maintenue) : https://ocprojet7.azurewebsites.net
+* Streamlit (maintenue) : https://oc-projet7-ehz38ku7ij7.streamlit.app/
 
 ## Données sources : 
  
