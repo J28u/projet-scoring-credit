@@ -16,9 +16,6 @@ def main():
     -------------------------------------
     None
     """
-    if "ids" not in st.session_state:
-        initialize_dashboard()
-
     st.markdown("""
                 <style>
                 div[data-testid='metric-container'] {
@@ -37,6 +34,9 @@ def main():
     header_col1.header('_Société Prêt à dépenser_')
     with header_col2.container():
         placeholder = st.empty()
+
+    if "ids" not in st.session_state:
+        initialize_dashboard()
 
     with st.form("FormID"):
         st.selectbox("Sélectionnez un identifiant client", st.session_state.ids[:50], key='client_select_box')
