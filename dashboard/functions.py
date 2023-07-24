@@ -518,7 +518,6 @@ def format_amount(amount: float):
     return formatted_amount
 
 
-@st.cache_data
 def load_graphs():
     """
     Enregistre les figures graphiques (histogramme du nombre de client par tranche d'âge et 
@@ -638,7 +637,6 @@ def initialize_dashboard():
     print("initialize_dashboard in {:0.4f} seconds".format(time.perf_counter() - start))
 
 
-@st.cache_data
 def load_client_info(client_id: int):
     """
     Récupère et enregistre la probabilité prédite qu'un client donné ne rembourse 
