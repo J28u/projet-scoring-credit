@@ -13,7 +13,7 @@ Banque - Finance - Assurance
     - Streamlit
     - FastAPI
     - Evidently
-    - MLFlow
+  * MLFlow
   * Docker
   * Azure
     - App Service
@@ -47,6 +47,7 @@ https://github.com/J28u/projet-scoring-credit/blob/main/note_technique/Presentat
  * dashboard :
    - dashboard.py : code générant le dashboard
    - functions.py : fonctions appelées par le dashboard
+   - dashboard_demo.mp4 : demo du dashboard Streamlit
  * notebook :
    - Projet7.ipynb : notebook de modélisation (du prétraitement à la prédiction)
    - toolbox.py : fonctions appelées par le notebook,
