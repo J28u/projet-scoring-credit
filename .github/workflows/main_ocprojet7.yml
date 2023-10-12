@@ -5,8 +5,8 @@ name: Build and push docker image to Azure Container Registry - ocprojet7
 
 on:
   push:
-    branches:
-      - main
+    #branches:
+      #- main
   workflow_dispatch:
 
 jobs:
